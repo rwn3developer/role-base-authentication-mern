@@ -22,7 +22,8 @@ const login = async(req,res) => {
         return res.status(200).send({
             success : true,
             message : "Login successfully",
-            token
+            token,
+            user
         })
     }catch(err){
         return res.status(501).send({

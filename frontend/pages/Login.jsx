@@ -1,7 +1,63 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Header from '../components/Header'
+import { ToastContainer, toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+
 
 const Login = () => {
+    const [email,setEmail] = useState("")
+    const [password,setPassword] = useState("")
+    const [auth,setAuth] = useAuth();
+    const navigate = useNavigate();
+    
+    const handleSubmit = async(event) => {
+        event.preventDefault();
+        try{
+            let res = await fetch(`http://localhost:8000/login`,{
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body : JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            })
+            let data = await res.json()
+            if(data?.success){
+                let login = {
+                    token:data?.token,
+                    user : data?.user
+                }
+                setAuth({
+                    ...auth,
+                    token:login
+                })
+                localStorage.setItem('loginuser',JSON.stringify(login))
+                toast.success(data?.message)
+
+                //role wise routing
+                const userRole = data?.user?.role;
+                if(userRole === 'admin'){
+                    navigate('/admin/dashboard')
+                }
+                else if(userRole === 'manager'){
+                    navigate('/manager/dashboard')
+                }
+                else if(userRole === 'user'){
+                    navigate('/user/dashboard')
+                }
+            }else{
+                toast.error(data?.message);
+                return false;
+            }
+        }catch(err){
+            console.log(err)
+            return false;
+        }
+    }
+
     return (
         <>
             <Header />
@@ -13,24 +69,27 @@ const Login = () => {
                                 <h4>Login User</h4>
                             </div>
                             <div className="card-body">
-                                <form>
+                                <form onSubmit={handleSubmit}>
                                     <div className="mb-3">
                                         <label htmlFor="exampleInputEmail1" className="form-label">Email</label>
-                                        <input type="email" className="form-control" placeholder='Enter your email'/>
+                                        <input type="email" onChange={ (e) => setEmail(e.target.value) } value={email} className="form-control" placeholder='Enter your email'/>
                                     </div>
                                     <div className="mb-3">
                                         <label htmlFor="exampleInputPassword1" className="form-label">Password</label>
-                                        <input type="password" className="form-control" placeholder='Enter your password'/>
+                                        <input type="password" className="form-control" onChange={ (e) => setPassword(e.target.value) } value={password}  placeholder='Enter your password'/>
                                     </div>
                                     <button type="submit" className="btn btn-primary">Submit</button>
                                 </form>
-
                             </div>
                         </div>
 
                     </div>
                 </div>
             </div>
+            <ToastContainer
+                position="top-center"
+                autoClose={2000}
+            />
         </>
     )
 }
