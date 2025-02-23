@@ -1,7 +1,24 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { toast, ToastContainer } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
 
 const Header = () => {
+    const [auth, setAuth] = useAuth();
+    const navigate = useNavigate();
+
+    const logoutUser = () => {
+        setAuth({
+            ...auth,
+            token: null
+        })
+        toast.success("User successfully logged out");
+        localStorage.removeItem('loginuser');
+        setTimeout(() => {
+            navigate('/');
+        }, 3000)
+    }
+
     return (
         <div className='bg-info'>
             <div className='container'>
@@ -13,20 +30,34 @@ const Header = () => {
                         </button>
                         <div className="collapse navbar-collapse" id="navbarSupportedContent">
                             <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
-                                <li className="nav-item">
-                                    <Link to={`/`} className="nav-link active" aria-current="page">Login</Link>
-                                </li>
 
-                                <li className="nav-item">
-                                    <Link to={`/register`} className="nav-link active" aria-current="page">Register</Link>
-                                </li>
-                                
+
+                                {
+                                    auth?.token ? (
+                                        <li className="nav-item">
+                                            <button onClick={() => logoutUser()} className='btn btn-warning btn-sm'>Logout</button>
+                                        </li>
+                                    ) : (
+                                        <>
+                                            <li className="nav-item">
+                                                <Link to={`/`} className="nav-link active" aria-current="page">Login</Link>
+                                            </li>
+
+                                            <li className="nav-item">
+                                                <Link to={`/register`} className="nav-link active" aria-current="page">Register</Link>
+                                            </li>
+                                        </>
+                                    )
+                                }
+
+
                             </ul>
                         </div>
                     </div>
                 </nav>
 
             </div>
+            <ToastContainer/>
         </div>
     )
 }

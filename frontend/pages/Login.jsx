@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Header from '../components/Header'
 import { ToastContainer, toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
@@ -10,6 +10,19 @@ const Login = () => {
     const [password,setPassword] = useState("")
     const [auth,setAuth] = useAuth();
     const navigate = useNavigate();
+
+    //without user logout not enter login page
+    useEffect(()=>{
+        const userRole = auth?.token?.user?.role;
+        if(userRole === "admin"){
+            navigate("/admin/dashboard");
+        }else if(userRole === "manager"){
+            navigate("/manager/dashboard");
+        }else if(userRole === "user"){
+            navigate("/user/dashboard");
+        }
+    },[auth?.token])
+    //without user logout not enter login page
     
     const handleSubmit = async(event) => {
         event.preventDefault();
