@@ -29,7 +29,7 @@ const login = async(req,res) => {
         return res.status(501).send({
             success : false,
             error : err
-        })
+        }) 
     }
 }
 const registerUser = async(req,res) => {
